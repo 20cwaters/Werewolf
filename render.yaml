@@ -1,0 +1,16 @@
+# Render blueprint. A single Node web service builds the React client and
+# serves it from the same process that hosts the Socket.IO server, so there is
+# no cross-origin setup and no second service to pay for.
+services:
+  - type: web
+    name: onuw
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
