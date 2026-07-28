@@ -41,7 +41,7 @@ export function JoinPage() {
       </header>
 
       <div className="flex flex-col items-center pt-2 pb-5 text-center">
-        <MoonCrest className="h-28 w-28" />
+        <MoonCrest className="h-32 w-32 sm:h-36 sm:w-36" />
         <h1 className="font-display mt-3 text-3xl leading-tight text-moon-100">
           One Night
           <span className="mt-0.5 block text-xl tracking-[0.28em] text-moon-300 uppercase">
