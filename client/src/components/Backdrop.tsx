@@ -1,19 +1,21 @@
 import { useMemo } from 'react';
 
 /**
- * Artwork for the night theme: a huge gold moon low on the horizon, a wolf
- * silhouette prowling a ridge, and spiky conifers framing the edges.
+ * Artwork for the night theme: a huge gold moon low on the horizon, the village
+ * silhouetted on the ridge with a few windows still lit, spiky conifers, and
+ * several pairs of eyes watching from the dark.
  *
- * All of it is inline SVG, so there are no image requests and it stays crisp at
- * any density. The shapes below were built and rendered offline before landing
- * here — see the notes on each part if you need to adjust proportions.
+ * All inline SVG, so there are no image requests and it stays crisp at any
+ * density. Everything here was rendered offline and reviewed before landing.
  */
 
 const INK = '#04070e';
+/** Warm lamplight in the village windows. */
+const LIT = '#ffd670';
 
-// Sky lives on the container as CSS rather than inside the SVG. A full-bleed
-// SVG with preserveAspectRatio="slice" crops brutally on tall phone viewports
-// (you end up seeing only the middle of the moon), so the scene SVG is anchored
+// The sky lives on the container as CSS rather than inside the SVG. A full-bleed
+// SVG with preserveAspectRatio="slice" crops brutally on tall phone viewports —
+// you end up seeing only the middle of the moon — so the scene SVG is anchored
 // to the bottom at its natural aspect ratio and the gradient covers the rest.
 const SKY =
   'linear-gradient(163deg, #31737f 0%, #2a5570 24%, #2d3460 50%, #2a1e48 75%, #150d29 100%)';
@@ -49,68 +51,26 @@ function pine(cx: number, baseY: number, h: number, w: number, tiers = 5): strin
   );
 }
 
-/**
- * The wolf, facing left, standing on y = 126 in its own coordinate space
- * (x runs about -6 to 191).
- *
- * Each part is a separate <path> element on purpose. Merging them into one `d`
- * makes the nonzero fill rule cancel wherever two subpaths wind in opposite
- * directions, which punches holes straight through the silhouette. Parts also
- * overlap generously so no sliver gaps open at the joins.
- */
-const WOLF_PARTS: string[] = [
-  // tail: thick at the base, tapering to a real point up and to the right
-  'M 130 50 C 142 42 156 28 168 15 C 176 7 186 2 191 5 C 188 13 180 24 170 35 C 159 46 146 56 138 59 C 131 61 126 55 130 50 Z',
-  // far legs first so the near pair reads in front
-  'M 58 68 C 49 86 38 106 30 116 L 28 126 L 45 126 L 48 116 C 56 104 68 88 74 70 Z',
-  'M 138 60 C 150 72 149 92 142 102 C 136 110 138 119 143 126 L 158 126 C 154 118 157 110 162 100 C 169 88 168 70 161 58 Z',
-  // compact torso with a deep chest
-  'M 74 48 C 90 42 116 42 130 50 C 140 56 142 68 138 78 C 132 86 116 88 100 88 C 84 88 74 82 70 74 C 64 66 66 53 74 48 Z',
-  'M 112 56 C 126 52 140 60 142 73 C 144 86 134 94 122 92 C 110 90 104 79 106 67 C 107 60 109 57 112 56 Z',
-  'M 74 52 C 88 50 96 62 95 74 C 94 84 84 90 74 88 C 62 86 58 72 60 62 C 62 55 68 53 74 52 Z',
-  // near legs, with a real hock bend on the hind
-  'M 108 58 C 122 70 124 90 115 100 C 107 110 105 118 107 126 L 124 126 C 122 118 124 110 132 100 C 142 88 144 70 138 56 Z',
-  'M 68 66 C 63 84 65 102 62 116 L 61 126 L 82 126 L 81 112 C 84 96 88 80 87 66 Z',
-  // shaggy ruff, heavy over the shoulders and dropping to a low ridge along the
-  // spine; a uniform row of tall spikes reads as a stegosaurus instead
-  'M 44 56 L 50 26 L 60 46 L 68 22 L 78 44 L 88 26 L 98 46 L 108 38 L 116 48 L 124 42 L 132 50 L 138 60 L 44 68 Z',
-  // short thick neck, then the head on top of everything
-  'M 50 42 C 62 38 74 42 82 50 C 88 58 88 72 82 79 C 72 85 56 82 48 74 C 42 66 42 50 50 42 Z',
-  'M 20 44 C 17 33 18 22 23 16 C 29 22 34 33 34 45 Z',
-  'M 36 44 C 36 33 39 22 45 17 C 51 24 52 36 50 47 Z',
-  'M 32 38 C 44 38 53 48 53 60 C 53 72 44 79 32 79 C 20 79 13 70 13 58 C 13 46 20 38 32 38 Z',
-  // upper jaw and lower jaw as two prongs, leaving a snarling gap between them
-  'M 28 42 C 14 44 2 49 -3 54 C -6 56 -5 60 -1 60 L 28 58 C 35 55 35 44 28 42 Z',
-  'M 3 78 C -2 79 -2 85 4 86 L 26 82 C 33 79 33 71 27 70 L 7 74 Z',
-  // two bold fangs; five small ones turned to mud at crest size
-  'M 3 60 L 7 71 L 12 60 Z',
-  'M 12 74 L 17 64 L 22 74 Z',
-];
+/** Gabled cottage. A narrow, tall one with a spire on top becomes the church. */
+const house = (x: number, baseY: number, w: number, h: number, roofH: number) =>
+  `M ${x} ${baseY} L ${x} ${baseY - h} L ${x + w / 2} ${baseY - h - roofH} ` +
+  `L ${x + w} ${baseY - h} L ${x + w} ${baseY} Z`;
 
-function Wolf({ transform }: { transform: string }) {
-  return (
-    <g transform={transform} fill={INK}>
-      {WOLF_PARTS.map((d, i) => (
-        <path key={i} d={d} />
-      ))}
-    </g>
-  );
+const chimney = (x: number, baseY: number, w: number, h: number) =>
+  `M ${x} ${baseY} L ${x} ${baseY - h} L ${x + w} ${baseY - h} L ${x + w} ${baseY} Z`;
+
+function Window({ x, y, w = 3, h = 3.6, o = 0.9 }: { x: number; y: number; w?: number; h?: number; o?: number }) {
+  return <rect x={x} y={y} width={w} height={h} rx="0.5" fill={LIT} opacity={o} />;
 }
 
-const grass = (x: number, y: number) =>
-  `M ${x} ${y} L ${x + 2} ${y - 8} L ${x + 4} ${y} Z ` +
-  `M ${x + 5} ${y} L ${x + 8} ${y - 12} L ${x + 10} ${y} Z ` +
-  `M ${x + 11} ${y} L ${x + 13} ${y - 6} L ${x + 15} ${y} Z`;
-
-/** Subtle mottling on the moon's face. Kept low contrast so it never reads as blobs. */
-function Craters({ cx, cy, s, idScale = 1 }: { cx: number; cy: number; s: number; idScale?: number }) {
-  const k = s * idScale;
+/** A pair of eyes in the dark. The glow is what sells it, not the pupils. */
+function Eyes({ x, y, s = 1, o = 0.95, glowId }: { x: number; y: number; s?: number; o?: number; glowId: string }) {
   return (
-    <g fill="#c98f1c" opacity="0.17">
-      <ellipse cx={cx - 26 * k} cy={cy - 28 * k} rx={16 * k} ry={12 * k} />
-      <ellipse cx={cx + 26 * k} cy={cy + 16 * k} rx={19 * k} ry={14 * k} />
-      <ellipse cx={cx - 14 * k} cy={cy + 34 * k} rx={11 * k} ry={8 * k} />
-      <ellipse cx={cx + 38 * k} cy={cy - 34 * k} rx={8 * k} ry={6 * k} />
+    <g opacity={o}>
+      <ellipse cx={x} cy={y} rx={9 * s} ry={6 * s} fill={`url(#${glowId})`} />
+      <ellipse cx={x + 5.6 * s} cy={y} rx={9 * s} ry={6 * s} fill={`url(#${glowId})`} />
+      <ellipse cx={x} cy={y} rx={1.5 * s} ry={1.05 * s} fill="#ffcf4d" />
+      <ellipse cx={x + 5.6 * s} cy={y} rx={1.5 * s} ry={1.05 * s} fill="#ffcf4d" />
     </g>
   );
 }
@@ -128,24 +88,45 @@ function MoonGradients({ prefix }: { prefix: string }) {
         <stop offset="78%" stopColor="#f2c033" />
         <stop offset="100%" stopColor="#d59a20" />
       </radialGradient>
+      <radialGradient id={`${prefix}EyeGlow`} cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#ffcf4d" stopOpacity="0.55" />
+        <stop offset="100%" stopColor="#ffcf4d" stopOpacity="0" />
+      </radialGradient>
     </>
   );
 }
 
-// [centreX, height, halfWidth] — clustered at the left and right edges so the
-// middle stays clear for the moon and the wolf.
+/** Subtle mottling on the moon's face, kept low contrast so it never reads as blobs. */
+function Craters({ cx, cy, s }: { cx: number; cy: number; s: number }) {
+  return (
+    <g fill="#c98f1c" opacity="0.17">
+      <ellipse cx={cx - 26 * s} cy={cy - 28 * s} rx={16 * s} ry={12 * s} />
+      <ellipse cx={cx + 26 * s} cy={cy + 16 * s} rx={19 * s} ry={14 * s} />
+      <ellipse cx={cx - 14 * s} cy={cy + 34 * s} rx={11 * s} ry={8 * s} />
+      <ellipse cx={cx + 38 * s} cy={cy - 34 * s} rx={8 * s} ry={6 * s} />
+    </g>
+  );
+}
+
+// [centreX, height, halfWidth] — clustered at the edges so the middle stays
+// clear for the moon and the village.
 const TREES: [number, number, number][] = [
-  [4, 80, 20],
-  [28, 58, 14],
-  [50, 96, 23],
-  [74, 48, 12],
-  [96, 66, 16],
-  [340, 56, 14],
-  [362, 94, 22],
-  [388, 66, 16],
-  [412, 104, 25],
-  [436, 60, 14],
+  [4, 84, 21],
+  [26, 60, 15],
+  [48, 100, 24],
+  [70, 52, 13],
+  [90, 70, 17],
+  [106, 46, 12],
+  [330, 50, 13],
+  [348, 86, 21],
+  [372, 62, 16],
+  [396, 104, 25],
+  [420, 66, 16],
+  [438, 84, 20],
 ];
+
+/** Village baseline in the backdrop's coordinate space. */
+const BASE = 236;
 
 export function Backdrop() {
   // Stable star field — regenerating each render would make it shimmer.
@@ -212,23 +193,48 @@ export function Backdrop() {
         <circle cx="215" cy="118" r="100" fill="url(#bdMoon)" />
         <Craters cx={215} cy={118} s={1} />
 
+        {/* Village, silhouetted against the moon */}
+        <g fill={INK}>
+          <path d={house(112, BASE, 27, 15, 10)} />
+          <path d={chimney(131, BASE - 22, 4, 7)} />
+          <path d={house(144, BASE, 21, 11, 8)} />
+          <path d={house(170, BASE, 32, 19, 13)} />
+          <path d={chimney(194, BASE - 29, 4.5, 8)} />
+          {/* church tower, the tallest thing in the village */}
+          <path d={house(210, BASE, 17, 30, 17)} />
+          <path d={`M 217 ${BASE - 47} L 218.5 ${BASE - 57} L 220 ${BASE - 47} Z`} />
+          <path d={house(232, BASE, 29, 17, 11)} />
+          <path d={chimney(252, BASE - 25, 4, 7)} />
+          <path d={house(266, BASE, 22, 12, 8)} />
+          <path d={house(292, BASE, 27, 15, 10)} />
+        </g>
+        <Window x={120} y={BASE - 12} />
+        <Window x={126} y={BASE - 12} o={0.5} />
+        <Window x={151} y={BASE - 8} w={2.6} h={3} />
+        <Window x={178} y={BASE - 15} />
+        <Window x={185} y={BASE - 15} />
+        <Window x={192} y={BASE - 15} o={0.45} />
+        <Window x={216} y={BASE - 34} w={2.6} h={4.5} o={0.8} />
+        <Window x={216} y={BASE - 14} w={2.6} h={3.4} o={0.55} />
+        <Window x={240} y={BASE - 13} />
+        <Window x={248} y={BASE - 13} o={0.5} />
+        <Window x={273} y={BASE - 9} w={2.6} h={3} o={0.75} />
+        <Window x={300} y={BASE - 12} />
+        <Window x={307} y={BASE - 12} o={0.45} />
+
         <path
-          d="M0 232 L70 226 L140 232 L210 224 L280 231 L350 225 L410 232 L440 228 L440 300 L0 300 Z"
+          d="M0 240 L70 234 L140 240 L210 233 L280 239 L350 234 L410 240 L440 236 L440 300 L0 300 Z"
           fill="url(#bdRidge)"
         />
         {TREES.map(([cx, h, w], i) => (
-          <path key={i} d={pine(cx, 250, h, w)} fill={INK} />
+          <path key={i} d={pine(cx, 258, h, w)} fill={INK} />
         ))}
 
-        {/* Drawn after the ridge so the paws stand on the crest rather than
-            being sliced off by it. */}
-        <Wolf transform="translate(150 128) scale(0.79)" />
-
-        <g fill={INK}>
-          <path d={grass(130, 229)} />
-          <path d={grass(300, 228)} />
-          <path d={grass(330, 231)} />
-        </g>
+        {/* Something is watching the village */}
+        <Eyes x={58} y={250} s={1.1} glowId="bdEyeGlow" />
+        <Eyes x={96} y={244} s={0.85} o={0.8} glowId="bdEyeGlow" />
+        <Eyes x={360} y={248} s={1} glowId="bdEyeGlow" />
+        <Eyes x={404} y={252} s={0.8} o={0.7} glowId="bdEyeGlow" />
       </svg>
 
       {/* Vignette so overlaid text always has contrast */}
@@ -254,7 +260,7 @@ export function MoonCrest({ className = '' }: { className?: string }) {
       viewBox="0 0 240 240"
       className={className}
       role="img"
-      aria-label="A wolf prowling a ridge in front of a full moon"
+      aria-label="A full moon over a sleeping village, with eyes watching from the trees"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
@@ -271,17 +277,32 @@ export function MoonCrest({ className = '' }: { className?: string }) {
 
       <g clipPath="url(#crClip)">
         <rect width="240" height="240" fill="url(#crSky)" />
-        <circle cx="120" cy="104" r="130" fill="url(#crHalo)" className="animate-moon-glow" />
-        <circle cx="120" cy="102" r="78" fill="url(#crMoon)" />
-        <Craters cx={120} cy={102} s={0.85} />
+        <circle cx="120" cy="98" r="132" fill="url(#crHalo)" className="animate-moon-glow" />
+        <circle cx="120" cy="96" r="76" fill="url(#crMoon)" />
+        <Craters cx={120} cy={96} s={0.85} />
 
-        <path d="M0 198 L60 193 L120 199 L180 192 L240 198 L240 240 L0 240 Z" fill={INK} />
-        <path d={pine(18, 200, 56, 14)} fill={INK} />
-        <path d={pine(38, 200, 34, 9)} fill={INK} />
-        <path d={pine(222, 200, 50, 13)} fill={INK} />
-        <path d={pine(200, 200, 32, 9)} fill={INK} />
+        <g fill={INK}>
+          <path d={house(74, 176, 26, 15, 10)} />
+          <path d={house(104, 176, 17, 30, 17)} />
+          <path d="M 111 129 L 112.5 119 L 114 129 Z" />
+          <path d={house(126, 176, 28, 17, 11)} />
+          <path d={house(158, 176, 22, 12, 8)} />
+        </g>
+        <Window x={82} y={165} />
+        <Window x={89} y={165} o={0.5} />
+        <Window x={110} y={148} w={2.6} h={4.5} o={0.85} />
+        <Window x={134} y={168} />
+        <Window x={142} y={168} o={0.5} />
 
-        <Wolf transform="translate(49 101) scale(0.76)" />
+        <path d="M0 180 L60 175 L120 181 L180 174 L240 180 L240 240 L0 240 Z" fill={INK} />
+        <path d={pine(16, 190, 62, 16)} fill={INK} />
+        <path d={pine(38, 190, 38, 10)} fill={INK} />
+        <path d={pine(224, 190, 56, 14)} fill={INK} />
+        <path d={pine(202, 190, 36, 10)} fill={INK} />
+
+        <Eyes x={62} y={204} s={1.7} glowId="crEyeGlow" />
+        <Eyes x={170} y={197} s={1.15} o={0.72} glowId="crEyeGlow" />
+        <Eyes x={116} y={216} s={1.3} o={0.85} glowId="crEyeGlow" />
       </g>
 
       <circle
