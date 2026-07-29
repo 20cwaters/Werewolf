@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { TIMER_LIMITS, defaultConfig, type RoomConfig } from '@onuw/shared';
 import { useGame } from '../lib/useGame';
-import { MoonCrest } from '../components/Backdrop';
 import { DeckEditor, type RoleCounts } from '../components/DeckEditor';
 import { RulesButton, RulesReference } from '../components/RulesReference';
 import { Button, Panel, Pill, cx } from '../components/ui';
@@ -40,15 +39,16 @@ export function JoinPage() {
         <RulesButton onClick={() => setRulesOpen(true)} />
       </header>
 
-      <div className="flex flex-col items-center pt-2 pb-5 text-center">
-        <MoonCrest className="h-32 w-32 sm:h-36 sm:w-36" />
-        <h1 className="font-display mt-3 text-3xl leading-tight text-moon-100">
+      {/* The title lands on top of the moon on wider viewports, so it carries
+          its own contrast rather than relying on the backdrop being dark. */}
+      <div className="flex flex-col items-center pt-6 pb-6 text-center">
+        <h1 className="font-display text-outline-night text-4xl leading-none text-moon-100 sm:text-5xl">
           One Night
-          <span className="mt-0.5 block text-xl tracking-[0.28em] text-moon-300 uppercase">
+          <span className="mt-2 block text-lg tracking-[0.26em] text-moon-200 uppercase sm:text-xl">
             Ultimate Werewolf
           </span>
         </h1>
-        <p className="mt-2 max-w-xs text-sm leading-relaxed text-mist-300">
+        <p className="text-glow-night mt-4 max-w-xs text-sm leading-relaxed text-mist-200">
           One night. One vote. No second chances. Gather 3 to 10 players — or fill the table with
           bots.
         </p>
@@ -245,7 +245,7 @@ export function JoinPage() {
         </form>
       </Panel>
 
-      <footer className="pt-4 pb-2 text-center text-xs text-mist-500">
+      <footer className="text-glow-night pt-4 pb-2 text-center text-xs text-mist-400">
         Roles in play: Werewolf, Minion, Mason, Seer, Robber, Troublemaker, Drunk, Insomniac, Tanner,
         Hunter, Villager.
       </footer>

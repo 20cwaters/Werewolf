@@ -190,6 +190,35 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Text legibility over the moon
+
+   The backdrop's moon is a large, very bright gold disc, and the join screen's
+   title sits right on top of it on wider viewports. A dark scrim behind the
+   text leaves a visible bruise across the moon, and -webkit-text-stroke thins
+   the glyphs, so both are avoided: a layered text-shadow paints a crisp dark
+   edge plus a soft halo and leaves the artwork completely intact.
+--------------------------------------------------------------------------- */
+.text-outline-night {
+  text-shadow:
+    0 2px 10px rgba(4, 6, 15, 0.85),
+    0 1px 0 rgba(4, 6, 15, 0.92),
+    0 -1px 0 rgba(4, 6, 15, 0.92),
+    1px 0 0 rgba(4, 6, 15, 0.92),
+    -1px 0 0 rgba(4, 6, 15, 0.92),
+    1px 1px 0 rgba(4, 6, 15, 0.92),
+    -1px 1px 0 rgba(4, 6, 15, 0.92),
+    1px -1px 0 rgba(4, 6, 15, 0.92),
+    -1px -1px 0 rgba(4, 6, 15, 0.92);
+}
+
+/* Lighter treatment for body copy, where a full outline reads as too heavy. */
+.text-glow-night {
+  text-shadow:
+    0 1px 3px rgba(4, 6, 15, 0.95),
+    0 2px 12px rgba(4, 6, 15, 0.8);
+}
+
+/* ---------------------------------------------------------------------------
    Reusable surfaces
 --------------------------------------------------------------------------- */
 .panel {
